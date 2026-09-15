@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 type ProductCardProps = {
+  id: number;
   code: string;
   persianName: string;
   englishName: string;
@@ -9,6 +10,7 @@ type ProductCardProps = {
 };
 
 export function ProductCard({
+  id,
   code,
   persianName,
   englishName,
@@ -17,7 +19,7 @@ export function ProductCard({
 }: ProductCardProps) {
   return (
     <Link
-      to="/products/001"
+      to={`/products/${id}`}
       className="group block cursor-pointer overflow-hidden rounded-xl border bg-card transition hover:shadow-lg"
     >
       <div className="overflow-hidden">

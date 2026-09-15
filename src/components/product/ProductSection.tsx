@@ -34,6 +34,7 @@ export function ProductSection() {
         {products?.products.map((product) => (
           <ProductCard
             key={product.id}
+            id={product.id}
             code="---"
             persianName={product.name_fa}
             englishName={product.name_en}
