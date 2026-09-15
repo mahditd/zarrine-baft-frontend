@@ -1,5 +1,6 @@
 import { ProductCard } from "./ProductCard";
 import { useProducts } from "@/hooks/useProducts";
+import heroFallback from "@/assets/hero.png";
 
 export function ProductSection() {
   const { data: products, isLoading, error } = useProducts();
@@ -31,21 +32,30 @@ export function ProductSection() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {products?.products.map((product) => (
-          <ProductCard
-            key={product.id}
-            id={product.id}
-            code="---"
-            persianName={product.name_fa}
-            englishName={product.name_en}
-            price={
-              product.variants[0]
-                ? `${product.variants[0].price.toLocaleString()} تومان`
-                : "تماس بگیرید"
-            }
-            image={product.images[0]?.image_url ?? "/hero.png"}
-          />
-        ))}
+        {products?.products.map((product) => {
+          const minPrice =
+            product.variants.length > 0
+              ? Math.min(...product.variants.map((v) => v.price))
+              : null;
+          const price =
+            minPrice !== null
+              ? product.variants.length > 1
+                ? `از ${minPrice.toLocaleString()} تومان`
+                : `${minPrice.toLocaleString()} تومان`
+              : "تماس بگیرید";
+
+          return (
+            <ProductCard
+              key={product.id}
+              id={product.id}
+              code={product.product_code}
+              persianName={product.name_fa}
+              englishName={product.name_en}
+              price={price}
+              image={product.images[0]?.image_url ?? heroFallback}
+            />
+          );
+        })}
       </div>
     </section>
   );

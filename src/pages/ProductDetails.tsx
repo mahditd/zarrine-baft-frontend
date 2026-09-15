@@ -3,28 +3,16 @@ import { Button } from "@/components/ui/button";
 import { useParams } from "react-router-dom";
 import { useProduct } from "@/hooks/useProduct";
 import { useRequestStore } from "@/store/requestStore";
-
-type ProductVariant = {
-  id: number;
-  product_id: number;
-  color: {
-    id: number;
-    name_fa: string;
-    name_en: string;
-    hex_code: string;
-  };
-  size: {
-    id: number;
-    name: string;
-  } | null;
-  price: number;
-};
+import type { ProductVariant } from "@/types/product";
 
 export default function ProductDetails() {
   const { id } = useParams();
 
-  const productId = Number(id);
+  // Remount inner view on id change so selection state resets cleanly.
+  return <ProductDetailsView key={id} productId={Number(id)} />;
+}
 
+function ProductDetailsView({ productId }: { productId: number }) {
   const { data: product, isLoading, error } = useProduct(productId);
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
