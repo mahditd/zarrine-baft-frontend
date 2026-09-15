@@ -6,6 +6,10 @@ export default function RequestList() {
   const items = useRequestStore((state) => state.items);
 
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.unitPrice * item.quantity,
+    0,
+  );
   const removeItem = useRequestStore((state) => state.removeItem);
   const clear = useRequestStore((state) => state.clear);
   const increaseQuantity = useRequestStore((state) => state.increaseQuantity);
@@ -28,6 +32,10 @@ export default function RequestList() {
 
           <p className="mt-2 text-muted-foreground">
             {items.length} مورد | مجموع تعداد: {totalQuantity}
+          </p>
+
+          <p className="mt-1 text-lg font-semibold text-primary">
+            مبلغ کل درخواست: {totalPrice.toLocaleString()} تومان
           </p>
         </div>
 
@@ -67,6 +75,12 @@ export default function RequestList() {
             <p>رنگ: {item.colorName}</p>
 
             <p>سایز: {item.sizeName}</p>
+
+            <p>قیمت واحد: {item.unitPrice.toLocaleString()} تومان</p>
+
+            <p className="font-semibold">
+              قیمت کل: {(item.unitPrice * item.quantity).toLocaleString()} تومان
+            </p>
 
             {/* Quantity */}
             <div className="flex flex-wrap items-center gap-2 pt-3">

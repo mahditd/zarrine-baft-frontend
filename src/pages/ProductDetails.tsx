@@ -27,6 +27,8 @@ export default function ProductDetails() {
 
   const { data: product, isLoading, error } = useProduct(productId);
 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -38,6 +40,8 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
 
   const [selectionError, setSelectionError] = useState("");
+
+  const [addedToRequest, setAddedToRequest] = useState(false);
 
   const addItem = useRequestStore((state) => state.addItem);
 
@@ -57,7 +61,9 @@ export default function ProductDetails() {
   ];
 
   const availableColors = product.variants.filter(
-    (variant) => variant.size?.name === selectedSize,
+    (variant, index, variants) =>
+      variant.size?.name === selectedSize &&
+      variants.findIndex((v) => v.color.id === variant.color.id) === index,
   );
   return (
     <div className="container mx-auto px-6 py-10">
@@ -66,10 +72,31 @@ export default function ProductDetails() {
         {product.images.length > 0 ? (
           <div className="rounded-xl border bg-card p-4">
             <img
-              src={product.images[0].image_url}
+              src={selectedImage ?? product.images[0].image_url}
               alt={product.name_fa}
               className="h-96 w-full rounded-lg object-cover"
             />
+
+            <div className="mt-4 flex gap-3 overflow-x-auto">
+              {product.images.map((image) => (
+                <button
+                  key={image.id}
+                  onClick={() => setSelectedImage(image.image_url)}
+                  className={`h-20 w-20 shrink-0 overflow-hidden rounded-lg border ${
+                    (selectedImage ?? product.images[0].image_url) ===
+                    image.image_url
+                      ? "border-primary"
+                      : "border-transparent"
+                  }`}
+                >
+                  <img
+                    src={image.image_url}
+                    alt={product.name_fa}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="rounded-xl border bg-card p-4">
@@ -121,7 +148,15 @@ export default function ProductDetails() {
             </div>
 
             <div>
-              <span className="font-semibold">رنگ:</span>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">رنگ:</span>
+
+                {selectedSize && (
+                  <span className="text-sm text-muted-foreground">
+                    رنگ‌های موجود برای سایز {selectedSize}
+                  </span>
+                )}
+              </div>
 
               <div className="mt-3 flex flex-wrap gap-3">
                 {selectedSize ? (
@@ -131,13 +166,21 @@ export default function ProductDetails() {
                       onClick={() => {
                         setSelectedColor(variant.color.name_fa);
                         setSelectedVariant(variant);
+                        setQuantity(1);
                       }}
-                      className={`rounded-lg border px-4 py-2 transition ${
+                      className={`flex items-center gap-2 rounded-lg border px-4 py-2 transition ${
                         selectedColor === variant.color.name_fa
                           ? "border-primary bg-primary text-primary-foreground"
                           : "bg-card hover:bg-muted"
                       }`}
                     >
+                      <span
+                        className="block h-6 w-6 shrink-0 rounded-full border-2 border-gray-400"
+                        style={{
+                          backgroundColor: variant.color.hex_code,
+                        }}
+                      />
+
                       {variant.color.name_fa}
                     </button>
                   ))
@@ -150,39 +193,14 @@ export default function ProductDetails() {
             </div>
 
             <div>
-              <span className="font-semibold">تعداد:</span>
+              <p className="font-semibold">تعداد سفارش</p>
 
               <div className="mt-3 flex items-center gap-2">
                 <button
                   className="rounded border px-3 py-1"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 100))}
+                  onClick={() => setQuantity((q) => Math.min(999, q + 100))}
                 >
-                  -100
-                </button>
-
-                <button
-                  className="rounded border px-3 py-1"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 10))}
-                >
-                  -10
-                </button>
-
-                <button
-                  className="rounded border px-3 py-1"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                >
-                  -1
-                </button>
-
-                <span className="min-w-12 text-center text-lg font-semibold">
-                  {quantity}
-                </span>
-
-                <button
-                  className="rounded border px-3 py-1"
-                  onClick={() => setQuantity((q) => Math.min(999, q + 1))}
-                >
-                  +1
+                  +100
                 </button>
 
                 <button
@@ -194,17 +212,55 @@ export default function ProductDetails() {
 
                 <button
                   className="rounded border px-3 py-1"
-                  onClick={() => setQuantity((q) => Math.min(999, q + 100))}
+                  onClick={() => setQuantity((q) => Math.min(999, q + 1))}
                 >
-                  +100
+                  +1
+                </button>
+
+                <span className="min-w-12 text-center text-lg font-semibold">
+                  {quantity}
+                </span>
+
+                <button
+                  className="rounded border px-3 py-1"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                >
+                  -1
+                </button>
+
+                <button
+                  className="rounded border px-3 py-1"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 10))}
+                >
+                  -10
+                </button>
+
+                <button
+                  className="rounded border px-3 py-1"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 100))}
+                >
+                  -100
                 </button>
               </div>
             </div>
 
             {selectedVariant && (
-              <div>
-                <span className="font-semibold">قیمت:</span>{" "}
-                {selectedVariant.price.toLocaleString()} تومان
+              <div className="rounded-lg bg-muted p-4 space-y-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">قیمت واحد</p>
+
+                  <p className="mt-1 text-lg font-semibold">
+                    {selectedVariant.price.toLocaleString()} تومان
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-muted-foreground">قیمت کل</p>
+
+                  <p className="mt-1 text-2xl font-bold text-primary">
+                    {(selectedVariant.price * quantity).toLocaleString()} تومان
+                  </p>
+                </div>
               </div>
             )}
 
@@ -215,6 +271,7 @@ export default function ProductDetails() {
             <Button
               size="lg"
               disabled={!selectedVariant}
+              variant={addedToRequest ? "secondary" : "default"}
               onClick={() => {
                 if (!selectedVariant) {
                   setSelectionError("لطفاً سایز و رنگ محصول را انتخاب کنید");
@@ -235,12 +292,20 @@ export default function ProductDetails() {
                   sizeName: selectedVariant.size?.name,
                   colorName: selectedVariant.color.name_fa,
 
+                  unitPrice: selectedVariant.price,
                   quantity,
-                  imageUrl: product.images[0]?.image_url,
+                  imageUrl: selectedImage ?? product.images[0]?.image_url,
                 });
+                setAddedToRequest(true);
+
+                setTimeout(() => {
+                  setAddedToRequest(false);
+                }, 2000);
               }}
             >
-              افزودن به لیست درخواست
+              {addedToRequest
+                ? "به لیست درخواست اضافه شد ✓"
+                : "افزودن به لیست درخواست"}
             </Button>
           </div>
         </div>

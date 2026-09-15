@@ -14,6 +14,7 @@ export type RequestItem = {
   sizeName?: string;
   colorName?: string;
 
+  unitPrice: number;
   quantity: number;
 };
 
