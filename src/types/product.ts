@@ -12,7 +12,9 @@ export interface Size {
 
 export interface Color {
   id: number;
-  name: string;
+  name_fa: string;
+  name_en: string;
+  hex_code: string;
 }
 
 export interface ProductVariant {
