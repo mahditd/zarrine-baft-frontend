@@ -1,37 +1,39 @@
-import { Button } from "@/components/ui/button"
-import { Search, User, ClipboardList } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Search, User, ClipboardList } from "lucide-react";
+import { useRequestStore } from "@/store/requestStore";
+import { Link } from "react-router-dom";
 
 export function Header() {
+  const requestCount = useRequestStore((state) => state.items.length);
+
   return (
     <header className="border-b bg-white">
       <div className="container mx-auto flex h-20 items-center justify-between px-6">
-
         {/* Logo */}
-        <div className="text-2xl font-bold text-primary">
-          زرینه بافت
-        </div>
+        <div className="text-2xl font-bold text-primary">زرینه بافت</div>
 
         {/* Navigation */}
         <nav className="flex items-center gap-8 text-sm">
-          <a
-            href="#"
-            className="hover:text-primary"
-          >
+          <Link to="/" className="hover:text-primary">
             محصولات
-          </a>
+          </Link>
 
-          <a
-            href="#"
+          <Link
+            to="/requests"
             className="flex items-center gap-2 hover:text-primary"
           >
             <ClipboardList size={18} />
             درخواست‌ها
-          </a>
+            {requestCount > 0 && (
+              <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">
+                {requestCount}
+              </span>
+            )}
+          </Link>
         </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-
           <Button variant="outline" size="icon">
             <Search size={18} />
           </Button>
@@ -40,10 +42,8 @@ export function Header() {
             <User size={18} />
             ورود
           </Button>
-
         </div>
-
       </div>
     </header>
-  )
+  );
 }
