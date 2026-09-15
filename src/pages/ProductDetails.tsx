@@ -13,10 +13,10 @@ type ProductVariant = {
     name_en: string;
     hex_code: string;
   };
-  size?: {
+  size: {
     id: number;
     name: string;
-  };
+  } | null;
   price: number;
 };
 
@@ -56,7 +56,9 @@ export default function ProductDetails() {
   }
   const sizes = [
     ...new Set(
-      product.variants.map((variant) => variant.size?.name).filter(Boolean),
+      product.variants
+        .map((variant) => variant.size?.name)
+        .filter((size): size is string => Boolean(size)),
     ),
   ];
 
