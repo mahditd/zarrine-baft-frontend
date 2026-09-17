@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { QuantityInput } from "@/components/common/QuantityInput";
 import { useParams } from "react-router-dom";
 import { useProduct } from "@/hooks/useProduct";
 import { useRequestStore } from "@/store/requestStore";
@@ -207,10 +208,11 @@ function ProductDetailsView({ productId }: { productId: number }) {
                   +1
                 </button>
 
-                <span className="min-w-12 text-center text-lg font-semibold">
-                  {quantity}
-                </span>
-
+                <QuantityInput
+                  value={quantity}
+                  onCommit={setQuantity}
+                  className="w-20 rounded-md border px-2 py-1 text-center text-lg font-semibold"
+                />
                 <button
                   className="rounded border px-3 py-1"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}

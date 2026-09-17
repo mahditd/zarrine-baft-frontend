@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { QuantityInput } from "@/components/common/QuantityInput";
 import { useRequestStore } from "@/store/requestStore";
 import { Link } from "react-router-dom";
 
@@ -52,13 +53,13 @@ export default function RequestList() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            onClick={() => {
-              alert("ثبت درخواست در مرحله بعد پیاده‌سازی می‌شود");
-            }}
+
+          <Link
+            to="/request/confirm"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
-            ثبت درخواست
-          </Button>
+            ادامه و تایید درخواست
+          </Link>
 
           <Button variant="destructive" onClick={clear}>
             پاک کردن همه
@@ -148,9 +149,12 @@ export default function RequestList() {
                 -1
               </Button>
 
-              <span className="min-w-12 rounded-md border bg-muted px-3 py-1 text-center font-bold">
-                {item.quantity}
-              </span>
+              <QuantityInput
+                value={item.quantity}
+                onCommit={(next) =>
+                  increaseQuantity(item.variantId, next - item.quantity)
+                }
+              />
 
               <Button
                 size="sm"

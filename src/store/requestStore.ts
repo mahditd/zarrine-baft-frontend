@@ -28,6 +28,10 @@ type RequestStore = {
   clear: () => void;
 };
 
+const normalizeQuantity = (quantity: number) => {
+  return Math.min(999, Math.max(1, quantity));
+};
+
 export const useRequestStore = create<RequestStore>()(
   persist(
     (set) => ({
@@ -35,6 +39,8 @@ export const useRequestStore = create<RequestStore>()(
 
       addItem: (item) =>
         set((state) => {
+          const quantity = normalizeQuantity(item.quantity);
+
           const existingItem = state.items.find(
             (existing) => existing.variantId === item.variantId,
           );
@@ -45,7 +51,7 @@ export const useRequestStore = create<RequestStore>()(
                 existing.variantId === item.variantId
                   ? {
                       ...existing,
-                      quantity: existing.quantity + item.quantity,
+                      quantity: Math.min(999, existing.quantity + quantity),
                     }
                   : existing,
               ),
@@ -53,7 +59,13 @@ export const useRequestStore = create<RequestStore>()(
           }
 
           return {
-            items: [...state.items, item],
+            items: [
+              ...state.items,
+              {
+                ...item,
+                quantity,
+              },
+            ],
           };
         }),
 
@@ -68,7 +80,7 @@ export const useRequestStore = create<RequestStore>()(
             item.variantId === variantId
               ? {
                   ...item,
-                  quantity: item.quantity + amount,
+                  quantity: normalizeQuantity(item.quantity + amount),
                 }
               : item,
           ),
@@ -80,7 +92,7 @@ export const useRequestStore = create<RequestStore>()(
             item.variantId === variantId
               ? {
                   ...item,
-                  quantity: Math.max(1, item.quantity - amount),
+                  quantity: normalizeQuantity(item.quantity - amount),
                 }
               : item,
           ),
